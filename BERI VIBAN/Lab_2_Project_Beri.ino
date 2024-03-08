@@ -17,13 +17,13 @@ void loop() {
     // Read the incoming data
     char data = Serial.read();
 
-    // If the data is 'S' or 's', turn the LED on
+    // If the data is 'B' or 'b', turn the LED on
       if (data == 'B' || data == 'b') {
       digitalWrite(ledPin, HIGH);
       Serial.println("LED ON");
     }
 
-    // If the data is 'L' or 'l', turn the LED off
+    // If the data is 'I' or 'i', turn the LED off
       if (data == 'I' || data == 'i') {
       digitalWrite(ledPin, LOW);
       Serial.println("LED OFF");
