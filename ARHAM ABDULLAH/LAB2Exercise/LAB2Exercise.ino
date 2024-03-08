@@ -1,5 +1,5 @@
 // Define the pin connected to the LED
-const int ledPin = LED_BUILTIN; // You can change this pin based on your hardware setup
+const int ledPin = LED_BUILTIN; 
 
 void setup() {
   // Initialize the serial communication
@@ -8,7 +8,7 @@ void setup() {
   // Initialize the LED pin as an output
   pinMode(ledPin, OUTPUT);
 
-  // Initially, turn off the LED
+  // Initially, turn ON the LED
   digitalWrite(ledPin, LOW);
 }
 
