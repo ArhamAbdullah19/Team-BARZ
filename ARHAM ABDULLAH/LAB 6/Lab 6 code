@@ -1,0 +1,64 @@
+// SPDX-License-Identifier: MIT
+pragma solidity >=0.5.0 =0.8.0;
+contract Factory {
+   uint idDigits = 16;
+   uint idModulus = 10**idDigits; 
+   
+ struct Product { 
+    uint Product_id;
+    string name;
+   }
+   Product[] public products;
+   event NewProduct(uint indexed arrayProductId, string name, uint id);
+
+    function _createProduct(string memory _name, uint _productId) private {
+        uint arrayProductId = products.length;
+        products.push(Product(_productId, _name));
+        emit NewProduct(arrayProductId, _name, _productId);}
+   
+   function generateRandomId(string memory _str) private view returns (uint){
+    //using hash function
+    uint rand = uint(keccak256(abi.encodePacked(_str)));
+    return rand % idModulus;
+   }
+   function generateRandonProduct(string memory _name) public {
+         uint randId = generateRandomId(_name);
+        _createProduct(_name, randId);
+    
+   }
+   mapping(uint => address) public productToOwner;
+   mapping(address => uint) public ownerProductCount;
+
+   function setProductOwnership(uint _productId) private 
+   {
+   productToOwner[_productId] = msg.sender; 
+   ownerProductCount[msg.sender]++;
+   }
+   
+   function getProductsByOwner(address _owner) external view returns (uint[] memory)
+   {
+        uint counter = 0;
+        uint[] memory result = new uint[](ownerProductCount[_owner]);
+
+        for (uint i = 0; i < products.length; i++) {
+            if (productToOwner[i] == _owner) {
+                result[counter] = i;
+                counter++;
+            }
+        }
+
+        return result;
+   }
+   mapping(uint => uint) public age; // Mapping to store user's age
+
+   modifier olderThan(uint _age, uint _userId)
+   {
+        require(age[_userId] >= _age, "User is not older than required age");
+        _;
+   }
+
+    function validationUsers(uint _userId) public view olderThan(18, _userId) 
+   {
+   
+   }
+}
