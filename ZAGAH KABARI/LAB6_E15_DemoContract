@@ -1,0 +1,53 @@
+// SPDX-License-Identifier: Unlicenced 
+
+// Exercise 15
+pragma solidity 0.8;
+contract DemoContract {
+   
+    address public owner;
+    struct Receivers { 
+        string name;
+        uint256 tokens;
+    }
+ 
+    mapping(address => Receivers) public users; 
+      
+    modifier onlyOwner(){
+        require(msg.sender == owner);
+        _; 
+     }
+   
+    constructor(){
+        owner = msg.sender;
+        users[owner].tokens = 100;  
+    }
+   
+    function double(uint _value) public pure returns (uint){
+        return _value*2;
+    }
+      
+    function register(string memory _name) public{
+        users[msg.sender].name = _name;
+     }
+      
+    function giveToken(address _receiver, uint256 _amount) onlyOwner
+public{
+        require(users[owner].tokens >= _amount);
+        users[owner].tokens -= _amount;
+        users[_receiver].tokens += _amount;
+     }
+
+     // Function to purchase tokens with Ether
+    function buyTokens() public payable {
+        // Calculate the number of tokens that can be purchased with the sent Ether
+        uint256 tokensToBuy = msg.value / 2; // 1 token = 2 Ether
+
+        // Check if the owner has enough tokens
+        require(users[owner].tokens >= tokensToBuy, "Owner does not have enough tokens");
+
+        // Update the balances
+        users[owner].tokens -= tokensToBuy;
+        users[msg.sender].tokens += tokensToBuy;
+    }
+} 
+ 
