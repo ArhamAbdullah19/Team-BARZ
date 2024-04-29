@@ -1,0 +1,46 @@
+// SPDX-License-Identifier: Unlicenced
+pragma solidity >=0.6.12 <0.9.0;
+
+contract DemoContract {
+    address public owner;
+    uint256 public etherBalance; // Track the contract's ether balance
+    uint256 public tokenPrice = 2; // Set the price of 1 token in ether
+
+    struct Receivers {
+        string name;
+        uint256 tokens;
+    }
+
+    mapping(address => Receivers) public users;
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only the owner can call this function");
+        _;
+    }
+
+    constructor() {
+        owner = msg.sender;
+        users[owner].tokens = 100;
+    }
+
+    function double(uint256 _value) public pure returns (uint256) {
+        return _value * 2;
+    }
+
+    function register(string memory _name) public {
+        users[msg.sender].name = _name;
+    }
+
+    function buyToken() public payable {
+        uint256 tokenAmount = msg.value / tokenPrice; // Calculate the amount of tokens based on the sent ether
+        require(users[owner].tokens >= tokenAmount, "Not enough tokens available");
+        users[owner].tokens -= tokenAmount;
+        users[msg.sender].tokens += tokenAmount;
+        etherBalance += msg.value; // Add the received ether to the contract's balance
+    }
+
+    function withdrawEther() public onlyOwner {
+        payable(owner).transfer(etherBalance); // Transfer the contract's ether balance to the owner
+        etherBalance = 0; // Reset the contract's ether balance to zero
+    }
+}
