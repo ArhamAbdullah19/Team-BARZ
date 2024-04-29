@@ -1,36 +1,62 @@
 // SPDX-License-Identifier: Unlicenced
-pragma solidity 0.8.0;  // there was a problem with 0.8.18 version 
+pragma solidity 0.8.25;
+
 contract DemoContract {
- 
- address public owner;
- struct Receivers { 
- string name;
- uint256 tokens;
- }
- mapping(address => Receivers) public users;
- 
- modifier onlyOwner(){
- require(msg.sender == owner);
- _;
-}
- 
- constructor(){
- owner = msg.sender;
- users[owner].tokens = 100; 
- }
- 
- function double(uint _value) public pure returns (uint){
- return _value*2;
- }
- 
- function register(string memory _name) public{
- users[msg.sender].name = _name;
- }
- 
- function giveToken(address _receiver, uint256 _amount) onlyOwner 
-public{
- require(users[owner].tokens >= _amount);
- users[owner].tokens -= _amount;
- users[_receiver].tokens += _amount;
- }
+    // Address of the contract owner
+    address public owner;
+
+    // Token struct to store user information
+    struct Receivers {
+        string name;
+        uint256 tokens;
+    }
+
+    // Mapping to store users and their token balances
+    mapping(address => Receivers) public users;
+
+    // Modifier to restrict functions to the contract owner
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only the owner can call this function");
+        _;
+    }
+
+    // Constructor function that assigns ownership and initial token balance
+    constructor() {
+        owner = msg.sender;
+        users[owner].tokens = 100;
+    }
+
+    // Function to double a value (unchanged from original code)
+    function double(uint value) public pure returns (uint) {
+        return value * 2;
+    }
+
+    // Function to register a user with a name (unchanged from original code)
+    function register(string memory name) public {
+        users[msg.sender].name = name;
+    }
+
+    // Function to purchase tokens with Ether
+    function buyTokens() public payable {
+        // Price of a token in Ether (2 Ether per token)
+        uint tokenPrice = 2 ether;
+
+        // Minimum amount of Ether required to buy a token
+        uint minEtherAmount = tokenPrice;
+
+        // Check if the sent Ether amount is enough to buy at least one token
+        require(msg.value >= minEtherAmount, "Insufficient Ether sent");
+
+        // Calculate the number of tokens to be purchased
+        uint tokensToPurchase = msg.value / tokenPrice;
+
+        // Check if the owner has enough tokens to sell
+        require(users[owner].tokens >= tokensToPurchase, "Not enough tokens available for purchase");
+
+        // Deduct tokens from the owner's balance
+        users[owner].tokens -= tokensToPurchase;
+
+        // Add purchased tokens to the buyer's balance
+        users[msg.sender].tokens += tokensToPurchase;
+    }
 }
