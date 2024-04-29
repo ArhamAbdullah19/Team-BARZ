@@ -1,36 +1,86 @@
-// SPDX-License-Identifier: Unlicenced
+// SPDX-License-Identifier: GPL-3.0-only
 pragma solidity >=0.6.12 <0.9.0;
-contract DemoContract {
- 
- address public owner;
- struct Receivers { 
- string name;
- uint256 tokens;
- }
- mapping(address => Receivers) public users;
- 
- modifier onlyOwner(){
- require(msg.sender == owner);
- _;
- }
- 
- constructor(){
- owner = msg.sender;
- users[owner].tokens = 100; 
- }
- 
- function double(uint _value) public pure returns (uint){
- return _value*2;
- }
- 
- function register(string memory _name) public{
- users[msg.sender].name = _name;
- }
- 
- function giveToken(address _receiver, uint256 _amount) onlyOwner 
-public{
- require(users[owner].tokens >= _amount);
- users[owner].tokens -= _amount;
- users[_receiver].tokens += _amount;
- }
+
+contract MyContract {
+    // Struct definition for Product
+    struct Product {
+        string name;
+        uint id;
+    }
+    
+    // Array to store products
+    Product[] public products;
+
+    // Event declaration for NewProduct
+    event NewProduct(uint indexed arrayProductId, string name, uint id);
+
+    // Public variable to store id modulus
+    uint public idModulus;
+
+    // Mapping to store product ownership
+    mapping(uint => address) public productToOwner;
+
+    // Mapping to store the count of products owned by each owner
+    mapping(address => uint) public ownerProductCount;
+
+    // Mapping to store user's age
+    mapping(uint => uint) public age;
+    
+    // Function modifier to check if the user is older than a certain age
+    modifier olderThan(uint _age, uint _userId) {
+        require(age[_userId] >= _age, "User is not old enough");
+        _;
+    }
+
+    constructor(uint idDigits) {
+        idModulus = 10**idDigits;
+    }
+
+    // Private function to create a new Product
+    function _createProduct(string memory _name, uint _productId) private {
+        // Add the new product to the products array
+        products.push(Product(_name, _productId));
+      uint productId = products.length - 1;
+        // Update product ownership
+        productToOwner[productId] = msg.sender;
+        // Increment owner's product count
+        ownerProductCount[msg.sender]++;
+        // Emit the NewProduct event
+        emit NewProduct(productId, _name, _productId);
+    }
+
+    // Private function to generate a random id
+    function _generateRandomId(string memory _str) private pure returns (uint) {
+        // Generate pseudo-random hexadecimal
+        uint rand = uint(keccak256(abi.encodePacked(_str)));
+        // Return a 16-digit long ID
+        return rand % 10**16;
+    }
+
+    // Public function to create a random product
+    function createRandomProduct(string memory _name) public {
+        // Generate random ID for the product name
+        uint randId = _generateRandomId(_name);
+        // Create product with random ID
+        _createProduct(_name, randId);
+    }
+
+    // Private function to create a new Product with a random ID
+    function _createRandomProduct(string memory _name) private {
+        // Generate random ID for the product name
+        uint randId = _generateRandomId(_name);
+        // Create product with random ID
+        _createProduct(_name, randId);
+    }
+
+    // Public function to create a random product (wrapper function)
+    function createRandomProductWrapper(string memory _name) public {
+        // Create random product with random ID
+        _createRandomProduct(_name);
+    }
+
+    // Public function to validate users
+    function validateUser(uint _userId) public view olderThan(18, _userId) {
+        // Function body is left blank as per the task requirements
+    }
 }
