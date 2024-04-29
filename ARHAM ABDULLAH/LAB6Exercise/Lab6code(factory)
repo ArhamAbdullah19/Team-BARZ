@@ -1,64 +1,42 @@
-// SPDX-License-Identifier: MIT
-pragma solidity >=0.5.0 =0.8.0;
-contract Factory {
-   uint idDigits = 16;
-   uint idModulus = 10**idDigits; 
-   
- struct Product { 
-    uint Product_id;
-    string name;
-   }
-   Product[] public products;
-   event NewProduct(uint indexed arrayProductId, string name, uint id);
+/ SPDX-License-Identifier: Unlicenced
+pragma solidity 0.8.25;
 
-    function _createProduct(string memory _name, uint _productId) private {
-        uint arrayProductId = products.length;
-        products.push(Product(_productId, _name));
-        emit NewProduct(arrayProductId, _name, _productId);}
-   
-   function generateRandomId(string memory _str) private view returns (uint){
-    //using hash function
-    uint rand = uint(keccak256(abi.encodePacked(_str)));
-    return rand % idModulus;
-   }
-   function generateRandonProduct(string memory _name) public {
-         uint randId = generateRandomId(_name);
-        _createProduct(_name, randId);
-    
-   }
-   mapping(uint => address) public productToOwner;
-   mapping(address => uint) public ownerProductCount;
+contract DemoContract {
+    // Address of the contract owner
+    address public owner;
 
-   function setProductOwnership(uint _productId) private 
-   {
-   productToOwner[_productId] = msg.sender; 
-   ownerProductCount[msg.sender]++;
-   }
-   
-   function getProductsByOwner(address _owner) external view returns (uint[] memory)
-   {
-        uint counter = 0;
-        uint[] memory result = new uint[](ownerProductCount[_owner]);
+    // Token struct to store user information
+    struct Receivers {
+        string name;
+        uint256 tokens;
+    }
 
-        for (uint i = 0; i < products.length; i++) {
-            if (productToOwner[i] == _owner) {
-                result[counter] = i;
-                counter++;
-            }
-        }
+    // Mapping to store users and their token balances
+    mapping(address => Receivers) public users;
 
-        return result;
-   }
-   mapping(uint => uint) public age; // Mapping to store user's age
-
-   modifier olderThan(uint _age, uint _userId)
-   {
-        require(age[_userId] >= _age, "User is not older than required age");
+    // Modifier to restrict functions to the contract owner
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only the owner can call this function");
         _;
-   }
+    }
 
-    function validationUsers(uint _userId) public view olderThan(18, _userId) 
-   {
-   
-   }
-}
+    // Constructor function that assigns ownership and initial token balance
+    constructor() {
+        owner = msg.sender;
+        users[owner].tokens = 100;
+    }
+
+    // Function to double a value (unchanged from original code)
+    function double(uint value) public pure returns (uint) {
+        return value * 2;
+    }
+
+    // Function to register a user with a name (unchanged from original code)
+    function register(string memory name) public {
+        users[msg.sender].name = name;
+    }
+
+    // Function to purchase tokens with Ether
+    function buyTokens() public payable {
+        // Price of a token in Ether (2 Ether per token)
+        uint
